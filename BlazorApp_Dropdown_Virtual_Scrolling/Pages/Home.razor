@@ -1,0 +1,34 @@
+@page "/"
+
+<PageTitle>Index</PageTitle>
+
+Selected value: @selectedValue
+<br />
+<SfDropDownList TValue="int?" TItem="DropdownModel" Width="250px" PopupHeight="300px" @bind-Value="@selectedValue" DataSource="@myDdlData" Query="@LocalDataQuery" EnableVirtualization="true" Placeholder="Select a item">
+    <DropDownListFieldSettings Text="TextField" Value="ValueField" />
+    <DropDownListEvents TValue="int?" TItem="DropdownModel" OnOpen="OnPopupOpening"></DropDownListEvents>
+</SfDropDownList>
+
+@code {
+    public class DropdownModel
+    {
+        public int? ValueField { get; set; }
+        public string? TextField { get; set; }
+    }
+
+    List<DropdownModel> myDdlData = new();
+    Query LocalDataQuery = new Query().Take(12).RequiresCount();
+
+    int? selectedValue { get; set; }
+
+    protected override void OnInitialized()
+    {
+        myDdlData = Enumerable.Range(1, 200).Select(x => new DropdownModel { TextField = "item " + x, ValueField = x }).ToList();
+    }
+
+    // The first open leaves the virtual range at 0, so the list stays on skeleton rows until a scroll changes the index.
+    private void OnPopupOpening()
+    {
+        LocalDataQuery = new Query().Take(12).RequiresCount().Range(0, 12);
+    }
+}
